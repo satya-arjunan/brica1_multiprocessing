@@ -18,29 +18,39 @@ class Counter(object):
     with self.lock:
       self.val.value = 0
 
-def step(running, c, a, c1, c2, np):
-  with c1:
-    c1.wait()
+def step(running, myid, c, a):
+  while running.value:
+    while a[myid] != 1:
+      pass
+    a[myid] = 2;
 
-def scheduler_step(running, a, c1, c2):
-  with c1:
-    c1.notify_all()
+def scheduler_step(running, c, a, np):
+  for i in range(np):
+    a[i] = 1
+  val = True
+  while val:
+    val = False
+    for i in range(np):
+      if a[i] == 1:
+        val = True
+        break
 
 if __name__ == '__main__':
-  n = 5
+  n = 10000
   np = 10
   c = Counter(0)
   running = multiprocessing.Value('i', 1)
-  c1 = multiprocessing.Condition()
-  c2 = multiprocessing.Condition()
-  a = multiprocessing.Array('i', size)
-  procs = [multiprocessing.Process(target=step, args=(running, c, a, c1, c2, np))
+  a = multiprocessing.Array('i', np)
+  for i in range(np):
+    a[i] = 2;
+  procs = [multiprocessing.Process(target=step, args=(running, i, c, a))
           for i in range(np)]
   for p in procs: p.start()
   t0 = time.time()
   for i in range(n):
-    scheduler_step(running, a, c1, c2)
+    scheduler_step(running, c, a, np)
   running.value = 0;
-  c1.notify_all()
+  for i in range(np):
+    a[i] = 1
   print('Latency: ', (time.time() - t0) / (n*2*np) * 1E6, 'microseconds')
   p.join()
