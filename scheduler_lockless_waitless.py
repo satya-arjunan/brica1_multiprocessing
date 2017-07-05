@@ -1,6 +1,7 @@
 import time
 import sys
 import multiprocessing
+from time import sleep
 size = 2
 steps = 10
 
@@ -21,6 +22,7 @@ class Counter(object):
 def step(running, myid, c, a):
   while running.value:
     while a[myid] != 1:
+      sleep(1.0/1e+6)
       pass
     a[myid] = 2;
 
@@ -29,6 +31,7 @@ def scheduler_step(running, c, a, np):
     a[i] = 1
   val = True
   while val:
+    sleep(1.0/1e+6)
     val = False
     for i in range(np):
       if a[i] == 1:
@@ -37,7 +40,7 @@ def scheduler_step(running, c, a, np):
 
 if __name__ == '__main__':
   n = 10000
-  np = 10
+  np = 30
   c = Counter(0)
   running = multiprocessing.Value('i', 1)
   a = multiprocessing.Array('i', np)
