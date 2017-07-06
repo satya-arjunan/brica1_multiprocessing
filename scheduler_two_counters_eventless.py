@@ -14,8 +14,7 @@ class Counter(object):
       self.val.value += 1
       return self.val.value
   def value(self):
-    with self.lock:
-      return self.val.value
+    return self.val.value
   def reset(self):
     with self.lock:
       self.val.value = 0
@@ -46,7 +45,7 @@ def scheduler_step(running, c, start, end):
 
 if __name__ == '__main__':
   n = 100
-  np = 20
+  np = 70
   c = Counter(0)
   running = multiprocessing.Value('i', 1)
   start = multiprocessing.RawValue('i', 0)
