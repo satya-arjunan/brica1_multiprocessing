@@ -23,14 +23,16 @@ class Counter(object):
 
 def step(running, myid, c, start, end, np):
   while running.value:
-    while start.value == 0 and running.value:
-      pass
+    while start.value == 0:
+      if not running.value:
+        return
     val = c.increment()
     if (val == np):
       c.reset()
       start.value = 0
-    while start.value == 1 and running.value:
-      pass
+    while start.value == 1:
+      if not running.value:
+        return
     val = c.increment()
     if (val == np):
       c.reset()
@@ -43,7 +45,7 @@ def scheduler_step(running, c, start, end):
     pass
 
 if __name__ == '__main__':
-  n = 10000
+  n = 100
   np = 20
   c = Counter(0)
   running = multiprocessing.Value('i', 1)
