@@ -10,8 +10,8 @@ def initProcess(a):
   my.a = a
 
 if __name__ == "__main__":
-  n = 100
-  pn = 10
+  n = 1000
+  pn = 100
   a = mp.Array('i', pn, lock=False)
   for i in range(pn):
     a[i] = i
