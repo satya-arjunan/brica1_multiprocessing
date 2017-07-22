@@ -84,7 +84,8 @@ class Scheduler(object):
 class Component(object):
     def __init__(self, name):
         self.name = name
-        self.buffer = Value('i', 0)
+        #self.buffer = Value('i', 0)
+        self.buffer = multiprocessing.RawValue('i', 0)
     def set_buffer(self, buffer):
         self.buffer.value = self.buffer.value+buffer
 
