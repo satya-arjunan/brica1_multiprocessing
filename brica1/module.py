@@ -212,6 +212,19 @@ class Agent(Module):
 
         return self.scheduler.step()
 
+    def multiprocessing_step(self):
+        """  Step the `Scheduler`.
+
+        Args:
+          None.
+
+        Returns:
+           float: the current time of the scheduler
+
+        """
+
+        return self.scheduler.multiprocessing_step()
+
     def update_scheduler(self):
         """ Udpate the `Scheduler` with this `Agent`.
 

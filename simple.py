@@ -25,7 +25,8 @@ if __name__ == '__main__':
   s.start_loop()
   t0 = time.time()
   for i in range(n):
-    agent.step()
+    #agent.step()
+    agent.multiprocessing_step()
   print('Latency: ', (time.time() - t0) / (n*2*np) * 1E6, 'microseconds')
   print('Duration/step: ', (time.time() - t0) / (n) * 1E3, 'milliseconds')
   s.end_loop()

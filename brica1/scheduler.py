@@ -143,6 +143,20 @@ class Scheduler(object):
 
         pass
 
+    @abstractmethod
+    def multiprocessing_step(self):
+        """ Step over a single iteration
+
+        Args:
+          None.
+
+        Returns:
+          float: the current time of the `Scheduler`.
+
+        """
+
+        pass
+
 class VirtualTimeSyncScheduler(Scheduler):
     """
     `VirtualTimeSyncScheduler` is a `Scheduler` implementation for virutal time
@@ -169,7 +183,7 @@ class VirtualTimeSyncScheduler(Scheduler):
         while self.end.value == 0:
           pass
 
-    def step(self):
+    def multiprocessing_step(self):
         """ Step by the internal interval.
 
         The methods `input()`, `fire()`, and `output()` are synchronously
@@ -193,16 +207,33 @@ class VirtualTimeSyncScheduler(Scheduler):
         self.function.value = 2
         self.step_processes()
 
-       # for component in self.components:
-       #     component.input(self.current_time.value)
+        return self.current_time.value
 
-       # for component in self.components:
-       #     component.fire()
+    def step(self):
+        """ Step by the internal interval.
 
-       # self.current_time.value = self.current_time.value + self.interval
+        The methods `input()`, `fire()`, and `output()` are synchronously
+        called and the time is incremented by the given interval for each
+        step.
 
-       # for component in self.components:
-       #     component.output(self.current_time.value)
+        Args:
+          None.
+
+        Returns:
+          float: the current time of the `Scheduler`.
+
+        """
+
+        for component in self.components:
+            component.input(self.current_time.value)
+
+        for component in self.components:
+            component.fire()
+
+        self.current_time.value = self.current_time.value + self.interval
+
+        for component in self.components:
+            component.output(self.current_time.value)
 
         return self.current_time.value
 
