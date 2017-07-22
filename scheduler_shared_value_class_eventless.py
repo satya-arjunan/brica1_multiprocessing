@@ -1,5 +1,4 @@
 import multiprocessing
-from multiprocessing import Value, Process, Pool
 
 class Counter(object):
   def __init__(self, initval=0):
@@ -27,23 +26,9 @@ class Scheduler(object):
           self.components.append(Component('a%i'%i))
         self.processes = []
 
-    def process_execute(self):
-        processes = []
-        for c in self.components:
-            processes.append(Process(target= c.set_buffer, args = (2,)))
-        [p.start() for p in processes]
-        [p.join() for p in processes]
-
-    def process_execute2(self):
-        processes = []
-        for c in self.components:
-            processes.append(Process(target= self.do_input, args = (c,)))
-        [p.start() for p in processes]
-        [p.join() for p in processes]
-
     def start_loop(self):
         for c in self.components:
-            self.processes.append(Process(target= self.loop, args = (c,)))
+            self.processes.append(multiprocessing.Process(target= self.loop, args = (c,)))
         [p.start() for p in self.processes]
 
     def end_loop(self):
@@ -51,9 +36,6 @@ class Scheduler(object):
         self.start.value = 1
         self.running.value = 0;
         [p.join() for p in self.processes]
-
-    def do_input(self,component):
-        component.set_buffer(2)
 
     def loop(self, component):
         while self.running.value:
@@ -91,9 +73,6 @@ class Component(object):
 
 if __name__ == '__main__':
     e = Scheduler(10)
-    #e.pool_execute()
-    #e.process_execute()
-    #e.process_execute2()
     e.start_loop()
     e.step()
     e.step()
