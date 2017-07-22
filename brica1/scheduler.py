@@ -189,7 +189,7 @@ class VirtualTimeSyncScheduler(Scheduler):
         self.function.value = 1
         self.step_processes()
         self.current_time.value = self.current_time.value + self.interval
-        #print self.current_time.value
+        #print(self.current_time.value)
         self.function.value = 2
         self.step_processes()
 
@@ -197,7 +197,7 @@ class VirtualTimeSyncScheduler(Scheduler):
        #     component.input(self.current_time.value)
 
        # for component in self.components:
-       #     component.fire(self.current_time.value)
+       #     component.fire()
 
        # self.current_time.value = self.current_time.value + self.interval
 
