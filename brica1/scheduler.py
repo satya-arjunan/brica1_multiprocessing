@@ -20,19 +20,31 @@ import numpy
 
 import multiprocessing
 
-class Counter(object):
-  def __init__(self, initval=0):
-    self.val = multiprocessing.RawValue('i', initval)
-    self.lock = multiprocessing.Lock()
-  def increment(self):
-    with self.lock:
-      self.val.value += 1
-      return self.val.value
-  def value(self):
-    return self.val.value
-  def reset(self):
-    with self.lock:
-      self.val.value = 0
+#class Counter(object):
+#  def __init__(self, initval=0):
+#    self.val = multiprocessing.RawValue('i', initval)
+#    self.lock = multiprocessing.Lock()
+#  def increment(self):
+#    with self.lock:
+#      self.val.value += 1
+#      return self.val.value
+#  def value(self):
+#    return self.val.value
+#  def reset(self):
+#    with self.lock:
+#      self.val.value = 0
+
+def do_input(args):
+    time, component = args
+    component.input(time)
+
+def do_fire(component):
+    component.fire()
+
+def do_output(args):
+    time, component = args
+    component.output(time)
+
 
 class Scheduler(object):
     """
@@ -55,7 +67,8 @@ class Scheduler(object):
 
         super(Scheduler, self).__init__()
         self.num_steps = 0
-        self.current_time = multiprocessing.RawValue('d', 0.0)
+        #self.current_time = multiprocessing.RawValue('d', 0.0)
+        self.current_time = 0.0
         self.components = []
 
     def reset(self):
@@ -70,7 +83,8 @@ class Scheduler(object):
         """
 
         self.num_steps = 0
-        self.current_time.value = 0.0
+        #self.current_time.value = 0.0
+        self.current_time = 0.0
         self.components = []
 
     def update(self, ca):
@@ -86,19 +100,22 @@ class Scheduler(object):
 
         self.components = ca.get_all_components()
         self.np = len(self.components)
-        self.counter = Counter(0)
-        self.event1 = multiprocessing.Event()
-        self.event2 = multiprocessing.Event()
-        self.running = multiprocessing.Value('i', 1)
-        self.start = multiprocessing.RawValue('i', 0)
-        self.end = multiprocessing.RawValue('i', 0)
-        self.function = multiprocessing.RawValue('i', 0)
+       # self.counter = Counter(0)
+       # self.event1 = multiprocessing.Event()
+       # self.event2 = multiprocessing.Event()
+       # self.running = multiprocessing.Value('i', 1)
+       # self.start = multiprocessing.RawValue('i', 0)
+       # self.end = multiprocessing.RawValue('i', 0)
+       # self.function = multiprocessing.RawValue('i', 0)
         self.processes = []
 
     def start_loop(self):
-        for c in self.components:
-            self.processes.append(multiprocessing.Process(target= self.loop, args = (c,)))
-        [p.start() for p in self.processes]
+        self.pool = multiprocessing.Pool(processes=self.np)
+
+   # def start_loop(self):
+   #     for c in self.components:
+   #         self.processes.append(multiprocessing.Process(target= self.loop, args = (c,)))
+   #     [p.start() for p in self.processes]
 
    # def end_loop(self):
    #     self.end.value = 0
@@ -131,18 +148,22 @@ class Scheduler(object):
    #         self.counter.reset()
    #         self.end.value = 1
 
-    def end_loop(self):
-        self.event1.set()
-        self.event2.set()
-        self.running.value = 0
-        [p.join() for p in self.processes]
+   # def end_loop(self):
+   #     self.event1.set()
+   #     self.event2.set()
+   #     self.running.value = 0
+   #     [p.join() for p in self.processes]
 
-    def loop(self, component):
-        while self.running.value:
-          self.counter.increment()
-          self.event1.wait()
-          self.counter.increment()
-          self.event2.wait()
+    def end_loop(self):
+        self.pool.close()
+        self.pool.join()
+
+   # def loop(self, component):
+   #     while self.running.value:
+   #       self.counter.increment()
+   #       self.event1.wait()
+   #       self.counter.increment()
+   #       self.event2.wait()
 
     @abstractmethod
     def step(self):
@@ -198,43 +219,51 @@ class VirtualTimeSyncScheduler(Scheduler):
     #    while self.end.value == 0:
     #      pass
 
-    def step_processes(self):
-        while self.counter.value() != self.np:
-          pass
-        self.event2.clear()
-        self.counterc.reset()
-        self.event1.set();
-        while self.counter.value() != np:
-          pass
-        self.event1.clear()
-        self.counter.reset()
-        self.event2.set()
+   # def step_processes(self):
+   #     while self.counter.value() != self.np:
+   #       pass
+   #     self.event2.clear()
+   #     self.counter.reset()
+   #     self.event1.set();
+   #     while self.counter.value() != self.np:
+   #       pass
+   #     self.event1.clear()
+   #     self.counter.reset()
+   #     self.event2.set()
 
-    def multiprocessing_step(self):
-        """ Step by the internal interval.
+   # def multiprocessing_step(self):
+   #     """ Step by the internal interval.
 
-        The methods `input()`, `fire()`, and `output()` are synchronously
-        called and the time is incremented by the given interval for each
-        step.
+   #     The methods `input()`, `fire()`, and `output()` are synchronously
+   #     called and the time is incremented by the given interval for each
+   #     step.
 
-        Args:
-          None.
+   #     Args:
+   #       None.
 
-        Returns:
-          float: the current time of the `Scheduler`.
+   #     Returns:
+   #       float: the current time of the `Scheduler`.
 
-        """
+   #     """
 
-        self.function.value = 0
-        self.step_processes()
-        self.function.value = 1
-        self.step_processes()
-        self.current_time.value = self.current_time.value + self.interval
-        #print(self.current_time.value)
-        self.function.value = 2
-        self.step_processes()
+   #     self.function.value = 0
+   #     self.step_processes()
+   #     self.function.value = 1
+   #     self.step_processes()
+   #     self.current_time.value = self.current_time.value + self.interval
+   #     #print(self.current_time.value)
+   #     self.function.value = 2
+   #     self.step_processes()
 
-        return self.current_time.value
+   #     return self.current_time.value
+
+    def multiprocessing_step(self): 
+        args = ((self.current_time, x) for x in self.components)
+        self.pool.map(do_input, args)
+        self.pool.map(do_fire, self.components)
+        self.current_time = self.current_time + self.interval
+        args = ((self.current_time, x) for x in self.components)
+        self.pool.map(do_output, args)
 
     def step(self):
         """ Step by the internal interval.
@@ -252,17 +281,17 @@ class VirtualTimeSyncScheduler(Scheduler):
         """
 
         for component in self.components:
-            component.input(self.current_time.value)
+            component.input(self.current_time)
 
         for component in self.components:
             component.fire()
 
-        self.current_time.value = self.current_time.value + self.interval
+        self.current_time = self.current_time + self.interval
 
         for component in self.components:
-            component.output(self.current_time.value)
+            component.output(self.current_time)
 
-        return self.current_time.value
+        return self.current_time
 
 class VirtualTimeScheduler(Scheduler):
     """

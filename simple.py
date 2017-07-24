@@ -1,9 +1,7 @@
 import brica1
 import time
 
-if __name__ == '__main__':
-  n = 1000
-  np = 2
+def get_timings(n, np):
   s = brica1.VirtualTimeSyncScheduler(1.0)
   agent = brica1.Agent(s)
   comps = []
@@ -25,9 +23,22 @@ if __name__ == '__main__':
   s.start_loop()
   t0 = time.time()
   for i in range(n):
-    agent.step()
-    #agent.multiprocessing_step()
-  print('Latency: ', (time.time() - t0) / (n*2*np) * 1E6, 'microseconds')
-  print('Duration/step: ', (time.time() - t0) / (n) * 1E3, 'milliseconds')
+    #agent.step()
+    agent.multiprocessing_step()
+  t1 = time.time()
+  latency = (t1 - t0) / (n*2*np) * 1E6
+  duration = (t1 - t0) / (n) * 1E3
   s.end_loop()
+  return latency, duration
 
+if __name__ == '__main__':
+  np = [2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 250, 300]
+  n = 1000
+  print("number of process,", "latency (us),", "duration (ms)")
+  for i in np:
+    if i > 20:
+      n = 100
+    latency, duration = get_timings(n, i)
+    print(i, latency, duration/i)
+    #print('Latency: ', latency, 'microseconds')
+    #print('Duration/step: ', duration, 'milliseconds')
