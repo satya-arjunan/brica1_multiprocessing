@@ -34,14 +34,13 @@ class Port(object):
         """
 
         super(Port, self).__init__()
-        ##ct = numpy.ctypeslib.as_ctypes(value)
-        ##while not isinstance(ct, str):
-        ##  ct = ct._type_
-        #self.shared_buffer = multiprocessing.RawArray(ctypes.c_double,
-        #    len(value))
-        #self.buffer = numpy.frombuffer(self.shared_buffer)
-        #self.buffer[:] = value.copy()
-        self.buffer = value
+        #ct = numpy.ctypeslib.as_ctypes(value)
+        #while not isinstance(ct, str):
+        #  ct = ct._type_
+        self.shared_buffer = multiprocessing.RawArray(ctypes.c_double,
+            len(value))
+        self.buffer = numpy.frombuffer(self.shared_buffer)
+        self.buffer[:] = value.copy()
         self.callbacks = []
 
     def connect(self, target):
