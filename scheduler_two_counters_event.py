@@ -38,7 +38,7 @@ def scheduler_step(running, c, a, e1, e2, np):
 
 if __name__ == '__main__':
   n = 1000
-  np = 100
+  np = 10
   c = Counter(0)
   running = multiprocessing.Value('i', 1)
   e1 = multiprocessing.Event()
