@@ -3,7 +3,7 @@ import time
 
 if __name__ == '__main__':
   n = 1000
-  np = 100
+  np = 2
   s = brica1.VirtualTimeSyncScheduler(1.0)
   agent = brica1.Agent(s)
   comps = []
@@ -25,8 +25,8 @@ if __name__ == '__main__':
   s.start_loop()
   t0 = time.time()
   for i in range(n):
-    #agent.step()
-    agent.multiprocessing_step()
+    agent.step()
+    #agent.multiprocessing_step()
   print('Latency: ', (time.time() - t0) / (n*2*np) * 1E6, 'microseconds')
   print('Duration/step: ', (time.time() - t0) / (n) * 1E3, 'milliseconds')
   s.end_loop()
