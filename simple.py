@@ -40,5 +40,3 @@ if __name__ == '__main__':
       n = 100
     latency, duration = get_timings(n, i)
     print(i, latency, duration/i)
-    #print('Latency: ', latency, 'microseconds')
-    #print('Duration/step: ', duration, 'milliseconds')

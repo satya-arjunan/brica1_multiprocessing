@@ -192,11 +192,11 @@ class VirtualTimeSyncScheduler(Scheduler):
         super(VirtualTimeSyncScheduler, self).__init__()
         self.interval = interval
 
-    #def step_processes(self):
-    #    self.end.value = 0
-    #    self.start.value = 1
-    #    while self.end.value == 0:
-    #      pass
+   # def step_processes(self):
+   #     self.end.value = 0
+   #     self.start.value = 1
+   #     while self.end.value == 0:
+   #       pass
 
     def step_processes(self):
         while self.counter.value() != self.np:
