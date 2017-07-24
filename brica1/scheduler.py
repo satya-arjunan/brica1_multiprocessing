@@ -200,7 +200,7 @@ class VirtualTimeSyncScheduler(Scheduler):
 
     def step_processes(self):
         while self.counter.value() != self.np:
-          pas
+          pass
         self.event2.clear()
         self.counterc.reset()
         self.event1.set();
