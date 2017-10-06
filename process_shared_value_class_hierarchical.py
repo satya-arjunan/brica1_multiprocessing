@@ -61,12 +61,15 @@ class Scheduler(object):
         for n in self.n:
           self.n_word = self.n_word + 2**n
         self.np = numpy.zeros(self.n.shape, dtype=int)
-        print("np:", self.np)
         for c in self.components:
-            n_index = numpy.where(self.n == c.n)[0][0]
-            c.set_n_index(n_index)
-            self.np[n_index] = self.np[n_index] + 1
-        self.np = [1,2,4]
+          n_index = numpy.where(self.n == c.n)[0][0]
+          c.set_n_index(n_index)
+          for n_index in range(len(self.n)):
+            if ((self.n[c.n_index] == 0) or
+                (n_index == c.n_index) or
+                ((self.n[n_index] > self.n[c.n_index]) and
+                  (self.n[n_index] % self.n[c.n_index] == 0))):
+              self.np[n_index] = self.np[n_index] + 1
         print("np list:", self.np)
         print("n list:",self.n)
         print("n word:",bin(self.n_word))
