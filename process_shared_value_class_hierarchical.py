@@ -24,9 +24,11 @@ class Scheduler(object):
         self.name = name
         self.components = [] #name, interval, index
         self.components.append(Component('a', 1, 0))
-        self.components.append(Component('b', 2, 1))
-        self.components.append(Component('c', 4, 2))
-        self.components.append(Component('d', 4, 3))
+        self.components.append(Component('ab', 2, 1))
+        self.components.append(Component('b', 2, 2))
+        self.components.append(Component('c', 4, 3))
+        self.components.append(Component('d', 4, 4))
+        self.components.append(Component('e', 8, 5))
         self.running = multiprocessing.Value('i', 1)
         self.start = multiprocessing.RawValue('i', 0)
         self.end = multiprocessing.RawValue('i', 0)
@@ -62,13 +64,9 @@ class Scheduler(object):
           self.n_word = self.n_word + 2**n
         self.np = numpy.zeros(self.n.shape, dtype=int)
         for c in self.components:
-          n_index = numpy.where(self.n == c.n)[0][0]
-          c.set_n_index(n_index)
+          c.set_n_index(numpy.where(self.n == c.n)[0][0])
           for n_index in range(len(self.n)):
-            if ((self.n[c.n_index] == 0) or
-                (n_index == c.n_index) or
-                ((self.n[n_index] > self.n[c.n_index]) and
-                  (self.n[n_index] % self.n[c.n_index] == 0))):
+            if (2**self.n[n_index] % 2**self.n[c.n_index] == 0):
               self.np[n_index] = self.np[n_index] + 1
         print("np list:", self.np)
         print("n list:",self.n)
