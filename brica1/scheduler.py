@@ -175,9 +175,9 @@ class HierarchicalTimeScheduler(Scheduler):
           for n_index in range(len(self.n)):
             if (2**self.n[n_index] % 2**self.n[c.n_index] == 0):
               self.np[n_index] = self.np[n_index] + 1
-        print("np list:", self.np)
-        print("n list:",self.n)
-        print("n word:",bin(self.n_word))
+        #print("np list:", self.np)
+        #print("n list:",self.n)
+        #print("n word:",bin(self.n_word))
 
     def setup_events(self):
         self.events1 = []
@@ -192,8 +192,8 @@ class HierarchicalTimeScheduler(Scheduler):
         while self.running.value:
           self.counters[component.curr_ni].increment()
           self.events1[component.curr_ni].wait()
-          print("  child:", component.name, component.curr_ni,
-              component.next_ni)
+          #print("  child:", component.name, component.curr_ni,
+          #    component.next_ni)
           if(self.function.value == 0):
             component.input(self.current_time.value)
             self.counters[component.curr_ni].increment()
@@ -228,8 +228,8 @@ class HierarchicalTimeScheduler(Scheduler):
         return self.current_time.value
 
     def step_processes(self):
-        print("parent:",self.curr_ni, "np:", self.np[self.curr_ni],
-            "count:", self.counters[self.curr_ni].value(), self.curr_time.value)
+        #print("parent:",self.curr_ni, "np:", self.np[self.curr_ni],
+        #    "count:", self.counters[self.curr_ni].value(), self.curr_time.value)
         while self.counters[self.curr_ni].value() != self.np[self.curr_ni]:
           pass
         self.events2[self.curr_ni].clear()
