@@ -9,18 +9,9 @@ def get_timings(n, np):
   for i in range(np-2):
     comps.append(brica1.PipeComponent())
   comps.append(brica1.NullComponent())
-  comps[0].set_interval(1)
-  comps[1].set_interval(2)
-  comps[2].set_interval(2)
-  comps[3].set_interval(4)
-  comps[4].set_interval(4)
-  comps[5].set_interval(8)
-  comps[0].set_name('a')
-  comps[1].set_name('b')
-  comps[2].set_name('c')
-  comps[3].set_name('d')
-  comps[4].set_name('e')
-  comps[5].set_name('f')
+  for c in comps:
+    c.set_interval(1)
+    #c.set_name('a')
   mod = brica1.Module();
   for i in range(np):
     mod.add_component('c%i'%i, comps[i])
@@ -44,7 +35,8 @@ def get_timings(n, np):
   return latency, duration
 
 if __name__ == '__main__':
-  np = [6]
+  #np = [2, 3, 4]
+  np = [2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 250, 300]
   n = 1000
   print("number of process,", "latency (us),", "duration (ms)")
   for i in np:
