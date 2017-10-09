@@ -1,5 +1,6 @@
 import brica1
 import time
+import random
 
 def get_timings(n, np):
   s = brica1.HierarchicalTimeScheduler(1.0)
@@ -9,9 +10,15 @@ def get_timings(n, np):
   for i in range(np-2):
     comps.append(brica1.PipeComponent())
   comps.append(brica1.NullComponent())
-  for c in comps:
-    c.set_interval(1)
-    #c.set_name('a')
+#  for c in comps:
+#    interval = 2**random.randint(0,5)
+#    print interval
+#    c.set_interval(interval)
+#    #c.set_name('a')
+  comps[0].set_interval(8)
+  comps[0].set_name('a')
+  comps[1].set_interval(32)
+  comps[1].set_name('b')
   mod = brica1.Module();
   for i in range(np):
     mod.add_component('c%i'%i, comps[i])
@@ -36,11 +43,13 @@ def get_timings(n, np):
 
 if __name__ == '__main__':
   #np = [2, 3, 4]
-  np = [2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 250, 300]
-  n = 1000
+  np = [2]
+  #np = [2, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 160, 200, 250, 300]
+  n = 66
   print("number of process,", "latency (us),", "duration (ms)")
   for i in np:
     if i > 20:
       n = 100
     latency, duration = get_timings(n, i)
-    print(i, latency, duration/i)
+    #print(i, latency, duration/i)
+    #print latency

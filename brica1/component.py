@@ -89,7 +89,7 @@ class Component(Unit):
         self.name = name
 
     def set_n(self, min_interval):
-        self.n = int(math.log(self.interval/min_interval, 2))
+        self.n = int(math.log(self.interval, 2))
 
     def set_n_index(self, index):
         self.n_index = index
@@ -99,7 +99,8 @@ class Component(Unit):
         next_time = curr_time + self.interval
         a = (next_time^(next_time-min_interval))&next_time
         b = (a+a-1)&n_word
-        self.next_ni = len(bin(b)[2:])-1 #get MSB
+        #self.next_ni = len(bin(b)[2:])-1 #get MSB
+        self.next_ni = bin(b).count("1")-1
 
     def update_curr_ni(self):
         self.curr_ni = self.next_ni
