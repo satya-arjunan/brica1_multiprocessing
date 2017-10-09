@@ -54,7 +54,6 @@ class Scheduler(object):
         self.components = []
 
     def update(self, ca):
-        print("updating parent")
         self.components = ca.get_all_components()
 
     def start_loop(self):
@@ -90,14 +89,11 @@ class VirtualTimeSyncScheduler(Scheduler):
 
     def update(self, ca):
         super(VirtualTimeSyncScheduler, self).update(ca)
-        print("updating child")
         self.np = len(self.components)
         self.counter = Counter(0)
         self.event1 = multiprocessing.Event()
         self.event2 = multiprocessing.Event()
         self.running = multiprocessing.Value('i', 1)
-        self.start = multiprocessing.RawValue('i', 0)
-        self.end = multiprocessing.RawValue('i', 0)
         self.function = multiprocessing.RawValue('i', 0)
         self.processes = []
 
@@ -119,7 +115,6 @@ class VirtualTimeSyncScheduler(Scheduler):
         self.function.value = 1
         self.step_processes()
         self.current_time.value = self.current_time.value + self.interval
-        #print(self.current_time.value)
         self.function.value = 2
         self.step_processes()
         return self.current_time.value
@@ -150,9 +145,9 @@ class HierarchicalTimeScheduler(Scheduler):
 
     def update(self, ca):
         super(HierarchicalTimeScheduler, self).update(ca)
-        print("updating child")
         self.running = multiprocessing.Value('i', 1)
         self.curr_time = multiprocessing.RawValue('i', 0)
+        self.function = multiprocessing.RawValue('i', 0)
         self.n = numpy.empty(0, dtype=int)
         self.curr_ni = 0
         self.setup_queue()
@@ -180,9 +175,9 @@ class HierarchicalTimeScheduler(Scheduler):
           for n_index in range(len(self.n)):
             if (2**self.n[n_index] % 2**self.n[c.n_index] == 0):
               self.np[n_index] = self.np[n_index] + 1
-        print("np list:", self.np)
-        print("n list:",self.n)
-        print("n word:",bin(self.n_word))
+        #print("np list:", self.np)
+        #print("n list:",self.n)
+        #print("n word:",bin(self.n_word))
 
     def setup_events(self):
         self.events1 = []
@@ -197,10 +192,16 @@ class HierarchicalTimeScheduler(Scheduler):
         while self.running.value:
           self.counters[component.curr_ni].increment()
           self.events1[component.curr_ni].wait()
-          component.update_next_ni(self.curr_time.value, self.interval,
-              self.n_word)
-          print("  child:", component.name, component.curr_ni,
-              component.next_ni)
+          if(self.function.value == 0):
+            component.input(self.current_time.value)
+          elif(self.function.value == 1):
+            component.fire()
+          else:
+            component.update_next_ni(self.curr_time.value, self.interval,
+                self.n_word)
+            component.output(self.current_time.value+component.interval)
+          #print("  child:", component.name, component.curr_ni,
+          #    component.next_ni)
           self.counters[component.curr_ni].increment()
           self.events2[component.curr_ni].wait()
           component.update_curr_ni()
@@ -213,13 +214,18 @@ class HierarchicalTimeScheduler(Scheduler):
         [p.join() for p in self.processes]
 
     def multiprocessing_step(self):
+        self.function.value = 0
+        self.step_processes()
+        self.function.value = 1
+        self.step_processes()
+        self.function.value = 2
         self.step_processes()
         self.update_time()
         return self.current_time.value
 
     def step_processes(self):
-        print("parent:",self.curr_ni, "np:", self.np[self.curr_ni],
-            "count:", self.counters[self.curr_ni].value(), self.curr_time.value)
+        #print("parent:",self.curr_ni, "np:", self.np[self.curr_ni],
+        #    "count:", self.counters[self.curr_ni].value(), self.curr_time.value)
         while self.counters[self.curr_ni].value() != self.np[self.curr_ni]:
           pass
         self.events2[self.curr_ni].clear()
