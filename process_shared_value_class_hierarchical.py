@@ -23,12 +23,8 @@ class Scheduler(object):
     def __init__(self, name):
         self.name = name
         self.components = [] #name, interval, index
-        self.components.append(Component('a', 1, 0))
-        self.components.append(Component('b', 2, 1))
-        self.components.append(Component('c', 2, 2))
-        self.components.append(Component('d', 4, 3))
-        self.components.append(Component('e', 4, 4))
-        self.components.append(Component('f', 8, 5))
+        self.components.append(Component('a', 8, 0))
+        self.components.append(Component('b', 32, 1))
         self.running = multiprocessing.Value('i', 1)
         self.curr_time = multiprocessing.RawValue('i', 0)
         self.n = numpy.empty(0, dtype=int)
@@ -109,6 +105,7 @@ class Scheduler(object):
 
     def update_time(self):
         next_time = self.curr_time.value + self.min_interval
+        #print("parent times:", self.curr_time.value, next_time)
         #print("  next_time:", next_time)
         a = (next_time^self.curr_time.value)&next_time
         #print("  a:", a)
@@ -116,7 +113,9 @@ class Scheduler(object):
         b = (a+a-1)&self.n_word
         #print("  b:", b)
         #print("  bin b:", bin(b).count("1")-1)
-        self.curr_ni = len(bin(b)[2:])-1 #get MSB
+        #self.curr_ni = len(bin(b)[2:])-1 #get MSB
+        self.curr_ni = bin(b).count("1")-1
+        #print("curr_ni:", self.curr_ni)
         self.curr_time.value = next_time
 
 
@@ -128,7 +127,7 @@ class Component(object):
         self.next_ni = 0
 
     def set_n(self, min_interval):
-        self.n = int(math.log(self.interval/min_interval, 2))
+        self.n = int(math.log(self.interval, 2))
 
     def set_n_index(self, index):
         self.n_index = index
@@ -136,12 +135,15 @@ class Component(object):
 
     def update_next_ni(self, curr_time, min_interval, n_word):
         next_time = curr_time + self.interval
+        #print("child:", self.name, curr_time, next_time)
         #print("child name:", self.name, "curr_time:", curr_time, "next_time:", next_time)
         a = (next_time^(next_time-min_interval))&next_time
         #print("  name:", self.name, "a:", a)
         b = (a+a-1)&n_word
         #print("  name:", self.name, "b:", b)
-        self.next_ni = len(bin(b)[2:])-1 #get MSB
+        #self.next_ni = len(bin(b)[2:])-1 #get MSB
+        self.next_ni = bin(b).count("1")-1
+        #print("name:", self.name, "next_ni:", self.next_ni)
 
     def update_curr_ni(self):
         self.curr_ni = self.next_ni
@@ -150,33 +152,8 @@ class Component(object):
 if __name__ == '__main__':
     e = Scheduler('exp')
     e.process_execute()
-    print("---1")
-    e.step_processes()
-    print("---2")
-    e.step_processes()
-    print("---3")
-    e.step_processes()
-    print("---4")
-    e.step_processes()
-    print("---5")
-    e.step_processes()
-    print("---6")
-    e.step_processes()
-    print("---7")
-    e.step_processes()
-    print("---8")
-    e.step_processes()
-    print("---9")
-    e.step_processes()
-    print("---10")
-    e.step_processes()
-    print("---11")
-    e.step_processes()
-    print("---12")
-    e.step_processes()
-    print("---13")
-    e.step_processes()
-    print("---14")
-    e.step_processes()
-    print("---15")
+    for i in range(66):
+      print("---%d" %i)
+      e.step_processes()
+    print("---done")
     e.end_loop()
