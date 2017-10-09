@@ -24,14 +24,12 @@ class Scheduler(object):
         self.name = name
         self.components = [] #name, interval, index
         self.components.append(Component('a', 1, 0))
-        self.components.append(Component('ab', 2, 1))
-        self.components.append(Component('b', 2, 2))
-        self.components.append(Component('c', 4, 3))
-        self.components.append(Component('d', 4, 4))
-        self.components.append(Component('e', 8, 5))
+        self.components.append(Component('b', 2, 1))
+        self.components.append(Component('c', 2, 2))
+        self.components.append(Component('d', 4, 3))
+        self.components.append(Component('e', 4, 4))
+        self.components.append(Component('f', 8, 5))
         self.running = multiprocessing.Value('i', 1)
-        self.start = multiprocessing.RawValue('i', 0)
-        self.end = multiprocessing.RawValue('i', 0)
         self.curr_time = multiprocessing.RawValue('i', 0)
         self.n = numpy.empty(0, dtype=int)
         self.curr_ni = 0
@@ -126,14 +124,8 @@ class Component(object):
     def __init__(self, name, interval, index):
         self.name = name
         self.interval = interval
-        self.min_interval = 0
-        self.index = index
-        self.buffer = Value('i', 0)
         self.curr_ni = 0
         self.next_ni = 0
-
-    def set_buffer(self, buffer):
-        self.buffer.value = self.buffer.value+buffer
 
     def set_n(self, min_interval):
         self.n = int(math.log(self.interval/min_interval, 2))

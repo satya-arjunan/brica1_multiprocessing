@@ -16,6 +16,7 @@ __all__ = ["Component", "ComponentSet", "ConstantComponent", "PipeComponent", "N
 from abc import ABCMeta, abstractmethod
 import copy
 import numpy
+import math
 
 # BriCA imports
 from .unit import *
@@ -46,6 +47,8 @@ class Component(Unit):
         self.last_output_time = 0.0
         self.offset = 0.0
         self.interval = 1.0
+        self.curr_ni = 0
+        self.next_ni = 0
         self.inputs = {}
         self.states = {}
         self.results = {}
@@ -78,6 +81,28 @@ class Component(Unit):
         """
 
         pass
+
+    def set_interval(self, interval):
+        self.interval = interval
+
+    def set_name(self, name):
+        self.name = name
+
+    def set_n(self, min_interval):
+        self.n = int(math.log(self.interval/min_interval, 2))
+
+    def set_n_index(self, index):
+        self.n_index = index
+        self.curr_ni = index
+
+    def update_next_ni(self, curr_time, min_interval, n_word):
+        next_time = curr_time + self.interval
+        a = (next_time^(next_time-min_interval))&next_time
+        b = (a+a-1)&n_word
+        self.next_ni = len(bin(b)[2:])-1 #get MSB
+
+    def update_curr_ni(self):
+        self.curr_ni = self.next_ni
 
     def set_state(self, id, value):
         """ Set a state value for the given ID.
