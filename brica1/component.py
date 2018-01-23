@@ -49,6 +49,7 @@ class Component(Unit):
         self.interval = 1.0
         self.curr_ni = 0
         self.next_ni = 0
+        self.sync_data = {}
         self.inputs = {}
         self.states = {}
         self.results = {}
@@ -103,6 +104,9 @@ class Component(Unit):
 
     def update_curr_ni(self):
         self.curr_ni = self.next_ni
+
+    def load_sync_data(self):
+        pass
 
     def set_state(self, id, value):
         """ Set a state value for the given ID.
@@ -222,7 +226,7 @@ class Component(Unit):
 
         for id, out_port in self.out_ports.items():
             if id in self.results:
-                out_port.buffer = self.results[id].copy()
+                out_port.buffer[:] = self.results[id].copy()
                 out_port.invoke_callbacks()
 
         assert self.last_output_time <= time, "update_output() captured a time travel"
