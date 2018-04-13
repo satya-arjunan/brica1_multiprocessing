@@ -192,19 +192,23 @@ class HierarchicalTimeScheduler(Scheduler):
         while self.running.value:
           self.counters[component.curr_ni].increment()
           self.events1[component.curr_ni].wait()
+          #print("  child:", component.name, component.curr_ni,
+          #    component.next_ni)
           if(self.function.value == 0):
             component.input(self.current_time.value)
+            self.counters[component.curr_ni].increment()
+            self.events2[component.curr_ni].wait()
           elif(self.function.value == 1):
             component.fire()
+            self.counters[component.curr_ni].increment()
+            self.events2[component.curr_ni].wait()
           else:
             component.update_next_ni(self.curr_time.value, self.interval,
                 self.n_word)
             component.output(self.current_time.value+component.interval)
-          #print("  child:", component.name, component.curr_ni,
-          #    component.next_ni)
-          self.counters[component.curr_ni].increment()
-          self.events2[component.curr_ni].wait()
-          component.update_curr_ni()
+            self.counters[component.curr_ni].increment()
+            self.events2[component.curr_ni].wait()
+            component.update_curr_ni()
 
     def end_loop(self):
         for i in range(len(self.events1)):
@@ -241,7 +245,8 @@ class HierarchicalTimeScheduler(Scheduler):
         next_time = self.curr_time.value + self.interval
         a = (next_time^self.curr_time.value)&next_time
         b = (a+a-1)&self.n_word
-        self.curr_ni = len(bin(b)[2:])-1 #get MSB
+        #self.curr_ni = len(bin(b)[2:])-1 #get MSB
+        self.curr_ni = bin(b).count("1")-1
         self.curr_time.value = next_time
 
 class VirtualTimeScheduler(Scheduler):

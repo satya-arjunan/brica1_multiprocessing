@@ -39,4 +39,5 @@ if __name__ == '__main__':
     if i > 20:
       n = 100
     latency, duration = get_timings(n, i)
-    print(i, latency, duration/i)
+    #print(i, latency, duration/i)
+    print latency
